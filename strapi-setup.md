@@ -1,27 +1,60 @@
 # Strapi CMS Setup Guide
 
-This guide will help you set up Strapi CMS to work with your Next.js frontend.
+This guide will help you set up Strapi Cloud CMS to work with your Next.js frontend.
 
-## Quick Setup with Strapi Cloud
+## Strapi Cloud Setup
+
+### 1. Create Strapi Cloud Project
 
 1. Visit [Strapi Cloud](https://cloud.strapi.io/)
-2. Create a new project
-3. Choose the free tier
-4. Deploy your Strapi instance
-5. Update your `STRAPI_API_URL` environment variable
+2. Sign up or log in with your GitHub account
+3. Click "Create Project"
+4. Connect your GitHub repository: `limmutable/prorata-cms`
+5. Choose the free tier
+6. Deploy your Strapi instance
 
-## Local Strapi Setup
+### 2. Get Your Strapi Cloud URL
 
-### 1. Create a new Strapi project
+After deployment, you'll get a URL like:
+```
+https://your-project-name.strapiapp.com
+```
+
+### 3. Update Environment Variables
+
+Copy `.env.local.example` to `.env.local` in your Next.js project:
 
 ```bash
-npx create-strapi-app@latest strapi-cms --quickstart
-cd strapi-cms
+cp .env.local.example .env.local
+```
+
+Update `.env.local` with your Strapi Cloud URL:
+```env
+STRAPI_API_URL=https://your-project-name.strapiapp.com
+```
+
+### 4. Configure GitHub Repository Secret
+
+For production deployment, add your Strapi URL to GitHub repository secrets:
+
+1. Go to your GitHub repository: `limmutable/prorata`
+2. Settings → Secrets and variables → Actions
+3. Click "New repository secret"
+4. Name: `STRAPI_API_URL`
+5. Value: `https://your-project-name.strapiapp.com`
+
+## Content Types Configuration
+
+After your Strapi Cloud instance is deployed, configure the content types:
+
+### 1. Access Strapi Admin
+
+Go to your Strapi Cloud admin panel:
+```
+https://your-project-name.strapiapp.com/admin
 ```
 
 ### 2. Create Content Types
-
-After Strapi starts, go to http://localhost:1337/admin and create:
 
 #### Posts Collection Type
 - **Name**: Post
@@ -49,41 +82,32 @@ After Strapi starts, go to http://localhost:1337/admin and create:
 
 ### 4. Add Sample Content
 
-Create a few posts and pages to test the integration.
+Create a few posts and pages to test the integration with your Next.js frontend.
 
-### 5. Environment Variables
+## Testing the Integration
 
-Copy `.env.local.example` to `.env.local` and update:
+### 1. Local Development
 
-```env
-STRAPI_API_URL=http://localhost:1337
-```
+1. Copy environment file:
+   ```bash
+   cp .env.local.example .env.local
+   ```
 
-For production deployment, update this to your Strapi instance URL.
+2. Update `.env.local` with your Strapi Cloud URL:
+   ```env
+   STRAPI_API_URL=https://your-project-name.strapiapp.com
+   ```
 
-## Deployment Options
+3. Start your Next.js development server:
+   ```bash
+   npm run dev
+   ```
 
-### Strapi Cloud (Recommended)
-- Free tier available
-- Easy deployment
-- Automatic backups
+4. Visit http://localhost:3000 to see your content
 
-### Heroku
-1. Create a new Heroku app
-2. Add PostgreSQL addon
-3. Deploy your Strapi project
-4. Update environment variables
+### 2. Production Deployment
 
-### Railway
-1. Connect your Strapi repository
-2. Add PostgreSQL service
-3. Deploy
-
-### DigitalOcean App Platform
-1. Create a new app
-2. Connect your repository
-3. Add managed database
-4. Configure environment variables
+Your GitHub Actions workflow will automatically use the `STRAPI_API_URL` secret you configured to fetch content during the build process.
 
 ## API Endpoints
 
@@ -95,9 +119,16 @@ Once set up, your Strapi instance will provide these endpoints:
 - `GET /api/pages` - Get all pages
 - `GET /api/pages?filters[slug][$eq]=:slug` - Get page by slug
 
-## Testing the Integration
+## Repository Structure
 
-1. Start your Strapi CMS
-2. Add some content
-3. Run your Next.js development server: `npm run dev`
-4. Visit http://localhost:3000 to see your content
+Your projects are now organized as:
+
+```
+GitHub Repositories:
+├── limmutable/prorata           (Next.js frontend)
+└── limmutable/prorata-cms       (Strapi CMS - managed by Strapi Cloud)
+
+Deployment:
+├── GitHub Pages                 (Frontend hosting)
+└── Strapi Cloud                 (CMS hosting)
+```
