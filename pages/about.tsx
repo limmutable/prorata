@@ -30,7 +30,7 @@ export default function About() {
           <h3>Technology Stack</h3>
           <ul>
             <li><strong>Next.js</strong> - React framework for static site generation</li>
-            <li><strong>Strapi CMS</strong> - Headless content management system</li>
+            <li><strong>Sanity CMS</strong> - Headless content management system</li>
             <li><strong>GitHub Pages</strong> - Static site hosting</li>
             <li><strong>TypeScript</strong> - Type-safe JavaScript development</li>
           </ul>
@@ -46,8 +46,8 @@ export default function About() {
 
           <h3>Getting Started</h3>
           <p>
-            This project is designed to work with a Strapi CMS backend. 
-            Configure your Strapi API URL in the environment variables to start 
+            This project is designed to work with Sanity CMS. 
+            Configure your Sanity project credentials in the environment variables to start 
             fetching content dynamically.
           </p>
         </section>

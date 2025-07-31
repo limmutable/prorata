@@ -1,15 +1,26 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import { GetStaticProps, GetStaticPaths } from 'next'
-import { fetchPost, fetchPosts } from '@/lib/strapi'
+import { fetchPost, fetchPosts, urlFor } from '@/lib/sanity'
+import { PortableText } from '@portabletext/react'
+import Image from 'next/image'
 
 interface Post {
-  id: number
-  attributes: {
-    title: string
-    content: string
-    publishedAt: string
-    slug: string
+  _id: string
+  title: string
+  slug: {
+    current: string
+  }
+  publishedAt: string
+  excerpt?: string
+  body: any
+  author?: string
+  mainImage?: {
+    asset: {
+      _id: string
+      url: string
+    }
+    alt?: string
   }
 }
 
@@ -30,8 +41,8 @@ export default function Post({ post }: PostProps) {
   return (
     <>
       <Head>
-        <title>{post.attributes.title} - ProRata</title>
-        <meta name="description" content={post.attributes.content.substring(0, 160)} />
+        <title>{post.title} - ProRata</title>
+        <meta name="description" content={post.excerpt || `Read ${post.title} on ProRata`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
@@ -49,14 +60,31 @@ export default function Post({ post }: PostProps) {
             <Link href="/">← Back to Home</Link>
           </div>
           
-          <h1>{post.attributes.title}</h1>
+          {post.mainImage && (
+            <div className="post-hero-image">
+              <Image
+                src={urlFor(post.mainImage).width(800).height(400).url()}
+                alt={post.mainImage.alt || post.title}
+                width={800}
+                height={400}
+                priority
+              />
+            </div>
+          )}
+          
+          <h1>{post.title}</h1>
           
           <div className="post-date">
-            Published on {new Date(post.attributes.publishedAt).toLocaleDateString()}
+            Published on {new Date(post.publishedAt).toLocaleDateString()}
+            {post.author && <span> • by {post.author}</span>}
           </div>
           
           <div className="post-content">
-            <p>{post.attributes.content}</p>
+            {post.body ? (
+              <PortableText value={post.body} />
+            ) : (
+              <p>No content available.</p>
+            )}
           </div>
         </article>
       </main>
@@ -99,18 +127,18 @@ export default function Post({ post }: PostProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
     const posts = await fetchPosts()
-    const paths = posts.data?.map((post: Post) => ({
-      params: { slug: post.attributes.slug }
+    const paths = posts?.map((post: Post) => ({
+      params: { slug: post.slug.current }
     })) || []
 
     return {
       paths,
-      fallback: 'blocking'
+      fallback: false
     }
   } catch (error) {
     return {
       paths: [],
-      fallback: 'blocking'
+      fallback: false
     }
   }
 }
@@ -118,8 +146,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
     const slug = params?.slug as string
-    const response = await fetchPost(slug)
-    const post = response.data?.[0]
+    const post = await fetchPost(slug)
 
     if (!post) {
       return {
@@ -130,8 +157,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return {
       props: {
         post
-      },
-      revalidate: 60
+      }
     }
   } catch (error) {
     return {

@@ -47,7 +47,8 @@ jobs:
       - name: Build with Next.js
         run: npm run build
         env:
-          STRAPI_API_URL: ${{ secrets.STRAPI_API_URL }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
